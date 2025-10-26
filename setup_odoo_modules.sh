@@ -31,7 +31,7 @@ CUSTOM_MODULES=(
     "dulayni_api"
     "billing"
     "wave_api"
-    "fast_service"
+    "ordo"
 )
 
 echo "🚀 Starting Odoo module setup..."
@@ -179,7 +179,7 @@ WHERE name IN ('setup_odoo',
                 'whatsapp_api',
                 'social_bot',
                 'dulayni_api',
-                'fast_service'
+                'ordo'
             )
 ORDER BY name;
 EOF
