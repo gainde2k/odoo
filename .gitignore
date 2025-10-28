@@ -1,6 +1,8 @@
 TODO
 .editignore
 addons/xyz
+addons/*.txt
+addons/*.md
 libs/langgraph/
 libs/mcp-server-demo/
 import_xml.rng
@@ -15,6 +17,8 @@ workflows.txt
 .mcp.json
 remove_none_images.sh
 config/odoo.conf
+generate_keys.sh
+*.pem
 task.md
 .python-version
 config/config.json

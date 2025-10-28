@@ -33,6 +33,17 @@ chown -R odoo:odoo /var/log/odoo
 chmod -R 755 /var/log/odoo
 echo "Log directory permissions fixed."
 
+# ============= Fix private key permissions =============
+echo "=== Fixing private key permissions ==="
+if [ -f "/mnt/extra-addons/whatsapp_flow_private_key.pem" ]; then
+    echo "Setting permissions for whatsapp_flow_private_key.pem"
+    chown odoo:odoo /mnt/extra-addons/whatsapp_flow_private_key.pem
+    chmod 600 /mnt/extra-addons/whatsapp_flow_private_key.pem
+    echo_success "Private key permissions fixed"
+else
+    echo_warning "Private key file not found at /mnt/extra-addons/whatsapp_flow_private_key.pem"
+fi
+
 # ============= Create symbolic link for Docker logs =============
 echo "=== Creating symbolic link for Docker logs ==="
 # Remove existing log file if it exists

@@ -18,29 +18,8 @@ services:
         PG_URI: ${PG_URI}
     ports:
       - "8069:8069"
-    environment:
-      - DB_HOST=${DB_HOST:-db}
-      - DB_PORT=${DB_PORT:-5432}
-      - DB_USER=${DB_USER:-odoo}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME:-odoo}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - PGPASSWORD=${PGPASSWORD}
-      - ODOO_DB=${ODOO_DB:-odoo}
-      - ODOO_USERNAME=${ODOO_USERNAME:-admin}
-      - ODOO_PASSWORD=${ODOO_PASSWORD}
-      - PG_URI=${PG_URI}
-      - PYTHONUNBUFFERED=1
-      - TERM=xterm-color
-      - ODOO_LOGFILE=/var/log/odoo/odoo.log
-      - ODOO_WORKERS=${ODOO_WORKERS:-0}
-      - ODOO_LOG_LEVEL=${ODOO_LOG_LEVEL:-info}
-      - ODOO_MAX_CRON_THREADS=${ODOO_MAX_CRON_THREADS:-2}
-      - ODOO_PROXY_MODE=${ODOO_PROXY_MODE:-False}
-      - DB_MAXCONN=${DB_MAXCONN:-64}
-      - DB_TEMPLATE=${DB_TEMPLATE:-template0}
-      # Module setup control
-      - SKIP_MODULE_SETUP=${SKIP_MODULE_SETUP:-false}
+    env_file:
+      - .env
     volumes:
       - odoo-web-data:/var/lib/odoo
       - ./config:/etc/odoo
@@ -49,9 +28,9 @@ services:
       - ./addons/oca/rest-framework:/mnt/oca-rest-framework
       - ./addons/oca/web-api:/mnt/oca-web-api
       - ./addons/oca/dms:/mnt/oca-dms
-      - ./logs:/var/log/odoo  # Mount logs directory for persistence
-      # Mount the setup script
+      - ./logs:/var/log/odoo
       - ./setup_odoo_modules.sh:/mnt/extra-addons/setup_odoo_modules.sh:ro
+      - ./whatsapp_flow_private_key.pem:/mnt/extra-addons/whatsapp_flow_private_key.pem
     tty: true
     stdin_open: true
     restart: unless-stopped
@@ -69,7 +48,7 @@ services:
       retries: 10
       start_period: 600s
 
-  # Utility service for running module setup only
+  # Utility service for running module setup only (optional)
   odoo-setup:
     build:
       context: .
@@ -87,19 +66,9 @@ services:
         ODOO_USERNAME: ${ODOO_USERNAME:-admin}
         ODOO_PASSWORD: ${ODOO_PASSWORD}
         PG_URI: ${PG_URI}
-    environment:
-      - DB_HOST=${DB_HOST:-db}
-      - DB_PORT=${DB_PORT:-5432}
-      - DB_USER=${DB_USER:-odoo}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME:-odoo}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - PGPASSWORD=${PGPASSWORD}
-      - ODOO_DB=${ODOO_DB:-odoo}
-      - ODOO_USERNAME=${ODOO_USERNAME:-admin}
-      - ODOO_PASSWORD=${ODOO_PASSWORD}
-      - PG_URI=${PG_URI}
-      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    profiles: ["tools"]  # Only runs when explicitly requested
     volumes:
       - odoo-web-data:/var/lib/odoo
       - ./config:/etc/odoo
@@ -110,7 +79,7 @@ services:
       - ./addons/oca/dms:/mnt/oca-dms
       - ./logs:/var/log/odoo
       - ./setup_odoo_modules.sh:/mnt/extra-addons/setup_odoo_modules.sh:ro
-    profiles: ["tools"]  # Only run when specifically requested
+      - ./whatsapp_flow_private_key.pem:/mnt/extra-addons/whatsapp_flow_private_key.pem
     command: ["setup-modules-only"]
 
 volumes:
