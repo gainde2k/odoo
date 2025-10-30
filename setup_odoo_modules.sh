@@ -167,8 +167,7 @@ SELECT
         ELSE '❓'
     END as status
 FROM ir_module_module 
-WHERE name IN ('setup_odoo',
-                'contacts', 
+WHERE name IN ('contacts', 
                 'account',
                 'mail',
                 'odoo_api', 
