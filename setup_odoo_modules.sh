@@ -27,6 +27,7 @@ CUSTOM_MODULES=(
     "social_bot"
     "social_api"
     "whatsapp_api"
+    "whatsapp_flow"
     "agentic_api"
     "dulayni_api"
     "billing"
@@ -176,6 +177,7 @@ WHERE name IN ('contacts',
                 'billing',
                 'social_api', 
                 'whatsapp_api',
+                'whatsapp_flow',
                 'social_bot',
                 'dulayni_api',
                 'ordo'
