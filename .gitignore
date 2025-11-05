@@ -1,6 +1,7 @@
 TODO
 .editignore
 addons/xyz
+addons/gainde
 addons/*.txt
 addons/*.md
 libs/langgraph/

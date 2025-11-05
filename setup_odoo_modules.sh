@@ -26,7 +26,8 @@ CUSTOM_MODULES=(
     "odoo_api"
     "social_bot"
     "social_api"
-    "whatsapp_api"
+    "meta_api"
+    "whatsapp_account"
     "whatsapp_flow"
     "agentic_api"
     "dulayni_api"
@@ -69,6 +70,7 @@ module_exists() {
     # Check in custom mount locations
     local paths=(
         "/mnt/setup_odoo"
+        "/mnt/gainde"
         "/mnt/social_api" 
         "/mnt/oca-rest-framework"
         "/mnt/oca-web-api"
@@ -176,7 +178,8 @@ WHERE name IN ('contacts',
                 'wave_api',
                 'billing',
                 'social_api', 
-                'whatsapp_api',
+                'meta_api',
+                'whatsapp_account',
                 'whatsapp_flow',
                 'social_bot',
                 'dulayni_api',
