@@ -15,6 +15,8 @@ setup_odoo.txt
 social_api.txt
 mcp_odoo.txt
 workflows.txt
+autocod.txt
+helm
 .mcp.json
 remove_none_images.sh
 config/odoo.conf

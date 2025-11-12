@@ -197,9 +197,11 @@ jobs:
         working-directory: ./ansible
         env:
           ENVIRONMENT: ${{ inputs.environment }}
+          # Git Configuration
           GIT_USER: ${{ vars.GIT_USER }}
           GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          
+          # Database Configuration
           DB_HOST: ${{ vars.DB_HOST }}
           DB_PORT: ${{ vars.DB_PORT }}
           DB_USER: ${{ vars.DB_USER }}
@@ -209,7 +211,51 @@ jobs:
           ODOO_DB: ${{ vars.ODOO_DB }}
           ODOO_USERNAME: ${{ vars.ODOO_USERNAME }}
           ODOO_PASSWORD: ${{ secrets.ODOO_PASSWORD }}
-          PG_URI: postgresql://${{ vars.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ vars.DB_HOST }}:${{ vars.DB_PORT }}/${{ vars.DB_NAME }}
+          
+          # Odoo Server Configuration
+          ODOO_WORKERS: ${{ vars.ODOO_WORKERS || '0' }}
+          ODOO_LOG_LEVEL: ${{ vars.ODOO_LOG_LEVEL || 'info' }}
+          ODOO_MAX_CRON_THREADS: ${{ vars.ODOO_MAX_CRON_THREADS || '2' }}
+          ODOO_PROXY_MODE: ${{ vars.ODOO_PROXY_MODE || 'False' }}
+          DB_MAXCONN: ${{ vars.DB_MAXCONN || '64' }}
+          DB_TEMPLATE: ${{ vars.DB_TEMPLATE || 'template0' }}
+          SKIP_MODULE_SETUP: ${{ vars.SKIP_MODULE_SETUP || 'false' }}
+          
+          # Wave API Configuration
+          WAVE_CHECKOUT_API_KEY: ${{ secrets.WAVE_CHECKOUT_API_KEY }}
+          WAVE_PAYOUT_API_KEY: ${{ secrets.WAVE_PAYOUT_API_KEY }}
+          WAVE_BALANCE_API_KEY: ${{ secrets.WAVE_BALANCE_API_KEY }}
+          WAVE_PAYMENT_RECEIVED_SHARED_SECRET: ${{ secrets.WAVE_PAYMENT_RECEIVED_SHARED_SECRET }}
+          SERVER_URL: ${{ vars.SERVER_URL }}
+          
+          # Meta/WhatsApp API Configuration
+          META_BUNSINESS_MANAGER_ID: ${{ vars.META_BUNSINESS_MANAGER_ID || '1620644888498053' }}
+          META_APP_ID: ${{ vars.META_APP_ID || '1277638880203763' }}
+          META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+          META_BASE_API_URL: ${{ vars.META_BASE_API_URL || 'https://graph.facebook.com/v22.0/' }}
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          META_WEBHOOK_URL: ${{ vars.META_WEBHOOK_URL }}
+          META_VERIFY_TOKEN: ${{ vars.META_VERIFY_TOKEN }}
+          WHATSAPP_PHONE_NUMBER: ${{ vars.WHATSAPP_PHONE_NUMBER }}
+          WHATSAPP_PHONE_NUMBER_ID: ${{ vars.WHATSAPP_PHONE_NUMBER_ID }}
+          WHATSAPP_BUSINESS_ACCOUNT_ID: ${{ vars.WHATSAPP_BUSINESS_ACCOUNT_ID }}
+          WHATSAPP_CATALOG_ID: ${{ vars.WHATSAPP_CATALOG_ID || '' }}
+          WHATSAPP_FLOW_PRIVATE_KEY: ${{ secrets.WHATSAPP_FLOW_PRIVATE_KEY }}
+          
+          # AI/Agent Configuration
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DULAYNI_API_KEY: ${{ secrets.DULAYNI_API_KEY }}
+          AGENTIC_API_KEY: ${{ secrets.AGENTIC_API_KEY }}
+          AGENTIC_BASE_URL: ${{ vars.AGENTIC_BASE_URL || 'https://openrouter.ai/api/v1' }}
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          DEEPSEEK_OPENROUTER_API_KEY: ${{ secrets.DEEPSEEK_OPENROUTER_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          
+          # Company Defaults
+          DEFAULT_ADMIN_PHONE: ${{ vars.DEFAULT_ADMIN_PHONE }}
+          DEFAULT_COMPANY_EMAIL: ${{ vars.DEFAULT_COMPANY_EMAIL }}
+          DEFAULT_COMPANY_PHONE: ${{ vars.DEFAULT_COMPANY_PHONE }}
         run: |
           # Update the inventory to use the correct SSH key path
           cp /tmp/deployment-config/${{ inputs.environment }}/hosts /tmp/deployment-config/${{ inputs.environment }}/hosts.bak
@@ -219,7 +265,53 @@ jobs:
             -i /tmp/deployment-config/${{ inputs.environment }}/hosts \
             playbooks/deploy-odoo.yml \
             --private-key /tmp/deployment-config/ssh_key \
-            --extra-vars "ansible_ssh_retries=5 ansible_ssh_timeout=30 github_token=$GIT_TOKEN github_user=${{ vars.GIT_USER }} openai_api_key=$OPENAI_API_KEY"
+            --extra-vars "ansible_ssh_retries=5 ansible_ssh_timeout=30 \
+                          github_token=$GIT_TOKEN \
+                          github_user=$GIT_USER \
+                          openai_api_key=$OPENAI_API_KEY \
+                          db_host=$DB_HOST \
+                          db_port=$DB_PORT \
+                          db_user=$DB_USER \
+                          db_password=$DB_PASSWORD \
+                          db_name=$DB_NAME \
+                          pgpassword=$PGPASSWORD \
+                          odoo_db=$ODOO_DB \
+                          odoo_username=$ODOO_USERNAME \
+                          odoo_password=$ODOO_PASSWORD \
+                          odoo_workers=$ODOO_WORKERS \
+                          odoo_log_level=$ODOO_LOG_LEVEL \
+                          odoo_max_cron_threads=$ODOO_MAX_CRON_THREADS \
+                          odoo_proxy_mode=$ODOO_PROXY_MODE \
+                          db_maxconn=$DB_MAXCONN \
+                          db_template=$DB_TEMPLATE \
+                          skip_module_setup=$SKIP_MODULE_SETUP \
+                          wave_checkout_api_key=$WAVE_CHECKOUT_API_KEY \
+                          wave_payout_api_key=$WAVE_PAYOUT_API_KEY \
+                          wave_balance_api_key=$WAVE_BALANCE_API_KEY \
+                          wave_payment_received_shared_secret=$WAVE_PAYMENT_RECEIVED_SHARED_SECRET \
+                          server_url=$SERVER_URL \
+                          meta_business_manager_id=$META_BUNSINESS_MANAGER_ID \
+                          meta_app_id=$META_APP_ID \
+                          meta_app_secret=$META_APP_SECRET \
+                          meta_base_api_url=$META_BASE_API_URL \
+                          meta_access_token=$META_ACCESS_TOKEN \
+                          meta_webhook_url=$META_WEBHOOK_URL \
+                          meta_verify_token=$META_VERIFY_TOKEN \
+                          whatsapp_phone_number=$WHATSAPP_PHONE_NUMBER \
+                          whatsapp_phone_number_id=$WHATSAPP_PHONE_NUMBER_ID \
+                          whatsapp_business_account_id=$WHATSAPP_BUSINESS_ACCOUNT_ID \
+                          whatsapp_catalog_id=$WHATSAPP_CATALOG_ID \
+                          whatsapp_flow_private_key=$WHATSAPP_FLOW_PRIVATE_KEY \
+                          dulayni_api_key=$DULAYNI_API_KEY \
+                          agentic_api_key=$AGENTIC_API_KEY \
+                          agentic_base_url=$AGENTIC_BASE_URL \
+                          claude_api_key=$CLAUDE_API_KEY \
+                          openrouter_api_key=$OPENROUTER_API_KEY \
+                          deepseek_openrouter_api_key=$DEEPSEEK_OPENROUTER_API_KEY \
+                          gemini_api_key=$GEMINI_API_KEY \
+                          default_admin_phone=$DEFAULT_ADMIN_PHONE \
+                          default_company_email=$DEFAULT_COMPANY_EMAIL \
+                          default_company_phone=$DEFAULT_COMPANY_PHONE"
 
       - name: Show container logs on failure
         if: failure()

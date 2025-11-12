@@ -4,7 +4,7 @@
 set -e  # Exit on any error
 
 # Configuration from environment variables
-DB_NAME="${ODOO_DB:-odoo}"
+DB_NAME="${DB_NAME:-odoo}"
 DB_HOST="${DB_HOST:-db}"
 DB_PORT="${DB_PORT:-5432}"
 DB_USER="${DB_USER:-odoo}"

@@ -8,7 +8,6 @@ inputs:
   action:
     description: 'Action to perform'
     required: true
-    default: 'get-droplet-ip'
   do-token:
     description: 'DigitalOcean token'
     required: true
@@ -40,17 +39,3 @@ runs:
           echo "ip=$clean_ip" >> $GITHUB_OUTPUT
           echo "has-ip=true" >> $GITHUB_OUTPUT
         fi
-
-    - name: Generate Inventory
-      if: inputs.action == 'generate-inventory' && steps.get-ip.outputs.has-ip == 'true'
-      shell: bash
-      run: |
-        mkdir -p ansible/inventories/${{ inputs.environment }}
-        cat > ansible/inventories/${{ inputs.environment }}/hosts << EOF
-        [odoo]
-        ${{ steps.get-ip.outputs.ip }} ansible_user=root
-
-        [odoo:vars]
-        ansible_user=root
-        env=${{ inputs.environment }}
-        EOF
