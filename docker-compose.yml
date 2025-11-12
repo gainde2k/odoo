@@ -28,6 +28,7 @@ services:
       - ./addons/oca/rest-framework:/mnt/oca-rest-framework
       - ./addons/oca/web-api:/mnt/oca-web-api
       - ./addons/oca/dms:/mnt/oca-dms
+      - ./addons/gainde:/mnt/gainde
       - ./logs:/var/log/odoo
       - ./setup_odoo_modules.sh:/mnt/extra-addons/setup_odoo_modules.sh:ro
       - ./whatsapp_flow_private_key.pem:/mnt/extra-addons/whatsapp_flow_private_key.pem
@@ -77,6 +78,7 @@ services:
       - ./addons/oca/rest-framework:/mnt/oca-rest-framework
       - ./addons/oca/web-api:/mnt/oca-web-api
       - ./addons/oca/dms:/mnt/oca-dms
+      - ./addons/gainde:/mnt/gainde
       - ./logs:/var/log/odoo
       - ./setup_odoo_modules.sh:/mnt/extra-addons/setup_odoo_modules.sh:ro
       - ./whatsapp_flow_private_key.pem:/mnt/extra-addons/whatsapp_flow_private_key.pem

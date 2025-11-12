@@ -24,15 +24,17 @@ CORE_MODULES=(
 # Optional custom modules  
 CUSTOM_MODULES=(
     "odoo_api"
+    "billing"
+    "wave_api"
     "social_bot"
     "social_api"
     "meta_api"
     "whatsapp_account"
+    "whatsapp_phone_number"
+    "whatsapp_catalog"
     "whatsapp_flow"
     "agentic_api"
     "dulayni_api"
-    "billing"
-    "wave_api"
     "ordo"
 )
 
@@ -180,6 +182,8 @@ WHERE name IN ('contacts',
                 'social_api', 
                 'meta_api',
                 'whatsapp_account',
+                'whatsapp_phone_number',
+                'whatsapp_catalog',
                 'whatsapp_flow',
                 'social_bot',
                 'dulayni_api',
