@@ -112,21 +112,33 @@ RUN --mount=type=cache,target=/root/.cache \
         --ignore-installed \
         -r /tmp/requirements.txt
 
-# Set permissions and prepare addons directory
-RUN mkdir -p /mnt/extra-addons && \
-    chown -R odoo:odoo /mnt/extra-addons && \
-    chown -R odoo:odoo /var/lib/odoo && \
-    chsh -s /bin/bash odoo || usermod -s /bin/bash odoo
+# Create ALL necessary directories that are in addons_path
+RUN mkdir -p /mnt/social_api /mnt/oca-rest-framework /mnt/oca-web-api /mnt/setup_odoo /mnt/oca-dms /mnt/gainde /mnt/extra-addons && \
+    chown -R odoo:odoo /mnt && \
+    chown -R odoo:odoo /var/lib/odoo
 
-RUN mkdir -p /mnt && \
-    chown -R odoo:odoo /mnt
+# COPY ACTUAL MODULE CODE to the paths specified in addons_path
+COPY --chown=odoo:odoo ./addons/social_api /mnt/social_api
+COPY --chown=odoo:odoo ./addons/oca/rest-framework /mnt/oca-rest-framework
+COPY --chown=odoo:odoo ./addons/oca/web-api /mnt/oca-web-api
+COPY --chown=odoo:odoo ./addons/setup_odoo /mnt/setup_odoo
+COPY --chown=odoo:odoo ./addons/oca/dms /mnt/oca-dms
+COPY --chown=odoo:odoo ./addons/gainde /mnt/gainde
 
-# Copy addons, scripts and entrypoint
+# Also copy to extra-addons as backup location
 COPY --chown=odoo:odoo ./addons /mnt/extra-addons
+
+# Verify the modules were copied correctly
+RUN echo "=== Verifying module copy ===" && \
+    echo "Social API modules:" && ls -la /mnt/social_api/ && \
+    echo "Setup Odoo modules:" && ls -la /mnt/setup_odoo/ && \
+    echo "Extra addons structure:" && find /mnt/extra-addons -maxdepth 2 -type d | head -20
+
+# Copy scripts and private key
 COPY ./setup_odoo_modules.sh /setup_odoo_modules.sh
 COPY ./whatsapp_flow_private_key.pem /mnt/extra-addons/whatsapp_flow_private_key.pem
 
-# Fix private key permissions - ADD THESE LINES
+# Fix private key permissions
 RUN chown odoo:odoo /mnt/extra-addons/whatsapp_flow_private_key.pem && \
     chmod 600 /mnt/extra-addons/whatsapp_flow_private_key.pem
 
@@ -134,9 +146,6 @@ COPY ./entrypoint.sh /entrypoint.sh
 
 # Make scripts executable
 RUN chmod +x /entrypoint.sh /setup_odoo_modules.sh
-
-# Don't switch to odoo user yet - let entrypoint handle it
-# USER odoo
 
 # Set the entrypoint (runs as root, then switches to odoo user)
 ENTRYPOINT ["/entrypoint.sh"]

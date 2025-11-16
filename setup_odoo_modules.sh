@@ -60,32 +60,58 @@ wait_for_db() {
     echo "✅ Database connection established"
 }
 
-# Function to check if module exists in filesystem
+# Enhanced function to check if module exists in filesystem
 module_exists() {
     local module=$1
     
+    echo "🔍 Searching for module: $module"
+    
     # Check in standard Odoo addons path
     if [ -d "/usr/lib/python3/dist-packages/odoo/addons/$module" ]; then
+        echo "✅ Found module $module in standard Odoo addons"
         return 0
     fi
     
-    # Check in custom mount locations
+    # Comprehensive list of paths to check (including both individual paths and extra-addons)
     local paths=(
-        "/mnt/setup_odoo"
-        "/mnt/gainde"
-        "/mnt/social_api" 
+        "/mnt/social_api"
         "/mnt/oca-rest-framework"
         "/mnt/oca-web-api"
+        "/mnt/setup_odoo"
         "/mnt/oca-dms"
+        "/mnt/gainde"
         "/mnt/extra-addons"
+        "/mnt/extra-addons/social_api"
+        "/mnt/extra-addons/oca/rest-framework"
+        "/mnt/extra-addons/oca/web-api"
+        "/mnt/extra-addons/oca/dms"
+        "/mnt/extra-addons/setup_odoo"
+        "/mnt/extra-addons/gainde"
     )
     
+    # Check all defined paths
     for path in "${paths[@]}"; do
         if [ -d "$path/$module" ]; then
+            echo "✅ Found module $module at: $path/$module"
             return 0
         fi
     done
     
+    # Additional check: recursively search in all /mnt subdirectories
+    local found_path=$(find /mnt -type d -name "$module" 2>/dev/null | head -1)
+    if [ -n "$found_path" ]; then
+        echo "✅ Found module $module at: $found_path"
+        return 0
+    fi
+    
+    # Final check: look for __manifest__.py in any subdirectory with the module name
+    local manifest_path=$(find /mnt -path "*/$module/__manifest__.py" 2>/dev/null | head -1)
+    if [ -n "$manifest_path" ]; then
+        echo "✅ Found module $module via manifest at: $(dirname $manifest_path)"
+        return 0
+    fi
+    
+    echo "❌ Module $module not found in any location"
     return 1
 }
 
@@ -193,7 +219,7 @@ ORDER BY name;
 EOF
 }
 
-# Pre-flight check for modules
+# Enhanced pre-flight check for modules
 check_modules_available() {
     echo "🔍 Checking if all modules are available..."
     
@@ -203,24 +229,35 @@ check_modules_available() {
     for module in "${all_modules[@]}"; do
         if ! module_exists "$module"; then
             missing_modules+=("$module")
-            echo "❌ Module $module not found in any addons path!"
-        else
-            echo "✅ Module $module found"
         fi
     done
     
     if [ ${#missing_modules[@]} -gt 0 ]; then
         echo "❌ Missing modules: ${missing_modules[*]}"
+        echo "📁 Available modules in /mnt:"
+        find /mnt -name "__manifest__.py" | sed 's|/__manifest__.py||' | xargs -I {} basename {} | sort | uniq
         return 1
     fi
     
     return 0
 }
 
+# Function to debug module locations
+debug_module_locations() {
+    echo "🐛 DEBUG: Module location analysis"
+    echo "=== Directory structure of /mnt ==="
+    find /mnt -type d -name "*" | head -20
+    echo "=== All __manifest__.py files found ==="
+    find /mnt -name "__manifest__.py" | head -10
+}
+
 # Main execution
 main() {
     # Wait for database to be ready
     wait_for_db
+    
+    # Debug: show module locations first
+    debug_module_locations
     
     # Pre-flight check
     if ! check_modules_available; then
@@ -277,11 +314,12 @@ main() {
 # Handle script arguments
 case "${1:-}" in
     --help|-h)
-        echo "Usage: $0 [--help|--check-only|--core-only|--verify]"
+        echo "Usage: $0 [--help|--check-only|--core-only|--verify|--debug]"
         echo "  --help: Show this help"
         echo "  --check-only: Only check database and module status"
         echo "  --core-only: Install only core modules"
         echo "  --verify: Only verify installation status"
+        echo "  --debug: Show debug information about module locations"
         exit 0
         ;;
     --check-only)
@@ -298,6 +336,9 @@ case "${1:-}" in
     --verify)
         wait_for_db
         verify_module_installation
+        ;;
+    --debug)
+        debug_module_locations
         ;;
     *)
         main
