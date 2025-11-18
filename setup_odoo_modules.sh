@@ -189,7 +189,7 @@ FROM ir_module_module
 WHERE name IN ('contacts', 
                 'account',
                 'mail',
-                'gainde',
+                'gainde'
             )
 ORDER BY name;
 EOF
