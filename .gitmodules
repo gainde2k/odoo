@@ -1,5 +1,5 @@
 
 [submodule "addons/gainde"]
 	path = addons/gainde
-	url = git@gitlab.com:kajande/backend/python/odoo/gainde.git # 027d6a2
+	url = git@gitlab.com:kajande/backend/python/odoo/gainde.git
 	branch = main
