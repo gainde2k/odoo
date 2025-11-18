@@ -3,7 +3,6 @@ services:
     build:
       context: .
       args:
-        OPENAI_API_KEY: ${OPENAI_API_KEY}
         HOST_UID: ${UID:-1000}
         HOST_GID: ${GID:-1000}
         DB_HOST: ${DB_HOST:-db}
@@ -23,15 +22,9 @@ services:
     volumes:
       - odoo-web-data:/var/lib/odoo
       - ./config:/etc/odoo
-      - ./addons/setup_odoo:/mnt/setup_odoo
-      - ./addons/social_api:/mnt/social_api
-      - ./addons/oca/rest-framework:/mnt/oca-rest-framework
-      - ./addons/oca/web-api:/mnt/oca-web-api
-      - ./addons/oca/dms:/mnt/oca-dms
       - ./addons/gainde:/mnt/gainde
       - ./logs:/var/log/odoo
       - ./setup_odoo_modules.sh:/mnt/extra-addons/setup_odoo_modules.sh:ro
-      - ./whatsapp_flow_private_key.pem:/mnt/extra-addons/whatsapp_flow_private_key.pem
     tty: true
     stdin_open: true
     restart: unless-stopped
@@ -54,7 +47,6 @@ services:
     build:
       context: .
       args:
-        OPENAI_API_KEY: ${OPENAI_API_KEY}
         HOST_UID: ${UID:-1000}
         HOST_GID: ${GID:-1000}
         DB_HOST: ${DB_HOST:-db}
@@ -73,15 +65,9 @@ services:
     volumes:
       - odoo-web-data:/var/lib/odoo
       - ./config:/etc/odoo
-      - ./addons/setup_odoo:/mnt/setup_odoo
-      - ./addons/social_api:/mnt/social_api
-      - ./addons/oca/rest-framework:/mnt/oca-rest-framework
-      - ./addons/oca/web-api:/mnt/oca-web-api
-      - ./addons/oca/dms:/mnt/oca-dms
       - ./addons/gainde:/mnt/gainde
       - ./logs:/var/log/odoo
       - ./setup_odoo_modules.sh:/mnt/extra-addons/setup_odoo_modules.sh:ro
-      - ./whatsapp_flow_private_key.pem:/mnt/extra-addons/whatsapp_flow_private_key.pem
     command: ["setup-modules-only"]
 
 volumes:

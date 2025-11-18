@@ -118,11 +118,6 @@ RUN mkdir -p /mnt/social_api /mnt/oca-rest-framework /mnt/oca-web-api /mnt/setup
     chown -R odoo:odoo /var/lib/odoo
 
 # COPY ACTUAL MODULE CODE to the paths specified in addons_path
-COPY --chown=odoo:odoo ./addons/social_api /mnt/social_api
-COPY --chown=odoo:odoo ./addons/oca/rest-framework /mnt/oca-rest-framework
-COPY --chown=odoo:odoo ./addons/oca/web-api /mnt/oca-web-api
-COPY --chown=odoo:odoo ./addons/setup_odoo /mnt/setup_odoo
-COPY --chown=odoo:odoo ./addons/oca/dms /mnt/oca-dms
 COPY --chown=odoo:odoo ./addons/gainde /mnt/gainde
 
 # Also copy to extra-addons as backup location
@@ -136,11 +131,6 @@ RUN echo "=== Verifying module copy ===" && \
 
 # Copy scripts and private key
 COPY ./setup_odoo_modules.sh /setup_odoo_modules.sh
-COPY ./whatsapp_flow_private_key.pem /mnt/extra-addons/whatsapp_flow_private_key.pem
-
-# Fix private key permissions
-RUN chown odoo:odoo /mnt/extra-addons/whatsapp_flow_private_key.pem && \
-    chmod 600 /mnt/extra-addons/whatsapp_flow_private_key.pem
 
 COPY ./entrypoint.sh /entrypoint.sh
 

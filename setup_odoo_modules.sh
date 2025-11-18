@@ -23,19 +23,7 @@ CORE_MODULES=(
 
 # Optional custom modules  
 CUSTOM_MODULES=(
-    "odoo_api"
-    "billing"
-    "wave_api"
-    "social_bot"
-    "social_api"
-    "meta_api"
-    "whatsapp_account"
-    "whatsapp_phone_number"
-    "whatsapp_catalog"
-    "whatsapp_flow"
-    "agentic_api"
-    "dulayni_api"
-    "ordo"
+    "gainde"
 )
 
 echo "🚀 Starting Odoo module setup..."
@@ -201,19 +189,7 @@ FROM ir_module_module
 WHERE name IN ('contacts', 
                 'account',
                 'mail',
-                'odoo_api', 
-                'agentic_api',
-                'wave_api',
-                'billing',
-                'social_api', 
-                'meta_api',
-                'whatsapp_account',
-                'whatsapp_phone_number',
-                'whatsapp_catalog',
-                'whatsapp_flow',
-                'social_bot',
-                'dulayni_api',
-                'ordo'
+                'gainde',
             )
 ORDER BY name;
 EOF

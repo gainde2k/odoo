@@ -10,13 +10,4 @@ parse-accept-language
 packaging
 aiohttp
 aiofiles
-reportlab
-# pdflatex
-langchain-openai
-langchain-community
-langgraph==0.3.25 # 0.5.0 ?
-asyncpg
-langgraph-checkpoint-postgres==2.0.21
-langchain-mcp-adapters
-# Fix
-git+https://github.com/moctarjallo/dulayni.git
+
