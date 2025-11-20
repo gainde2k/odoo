@@ -1,5 +1,5 @@
 
 [submodule "addons/gainde"]
 	path = addons/gainde
-	url = git@gitlab.com:kajande/backend/python/odoo/gainde.git
+	url = ssh://git@gitlab.kilifa.fr:2222/odoo/modules.git
 	branch = main
