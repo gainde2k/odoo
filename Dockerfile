@@ -1,4 +1,4 @@
-FROM odoo:18.0
+FROM gitlab.kilifa.fr:5050/odoo/odoo:18.0
 
 # Switch to root to install dependencies
 USER root

@@ -51,7 +51,7 @@ echo "Filestore permissions fixed."
 
 # Create config file - KEEP original addons_path but ensure directories exist
 echo "[options]" > /etc/odoo/odoo.conf
-echo "addons_path = /mnt/social_api,/mnt/oca-rest-framework,/mnt/oca-web-api,/mnt/setup_odoo,/mnt/oca-dms,/mnt/gainde" >> /etc/odoo/odoo.conf
+echo "addons_path = /mnt/enterprise,/mnt/oca-rest-framework,/mnt/oca-web-api,/mnt/setup_odoo,/mnt/oca-dms,/mnt/gainde" >> /etc/odoo/odoo.conf
 echo "data_dir = /var/lib/odoo" >> /etc/odoo/odoo.conf
 echo "admin_passwd = ${ODOO_PASSWORD}" >> /etc/odoo/odoo.conf
 # REMOVED: logfile directive - using symbolic link instead
