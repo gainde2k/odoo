@@ -24,6 +24,7 @@ CORE_MODULES=(
 # Optional custom modules  
 CUSTOM_MODULES=(
     "gainde"
+    "bf_portal_purchase_request"
 )
 
 echo "🚀 Starting Odoo module setup..."
