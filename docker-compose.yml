@@ -13,7 +13,7 @@ services:
         PGPASSWORD: ${PGPASSWORD}
         ODOO_DB: ${ODOO_DB:-odoo}
         ODOO_USERNAME: ${ODOO_USERNAME:-admin}
-        ODOO_PASSWORD: ${ODOO_PASSWORD}
+        ADMIN_PASSWD: ${ADMIN_PASSWD}
         PG_URI: ${PG_URI}
     ports:
       - "8069:8069"
@@ -57,7 +57,7 @@ services:
         PGPASSWORD: ${PGPASSWORD}
         ODOO_DB: ${ODOO_DB:-odoo}
         ODOO_USERNAME: ${ODOO_USERNAME:-admin}
-        ODOO_PASSWORD: ${ODOO_PASSWORD}
+        ADMIN_PASSWD: ${ADMIN_PASSWD}
         PG_URI: ${PG_URI}
     env_file:
       - .env
