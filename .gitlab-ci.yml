@@ -11,6 +11,7 @@ variables:
   LATEST_TAG: $CI_REGISTRY_IMAGE:latest
   EXTERNAL_REGISTRY: $KILIFA_GITLAB_REGISTRY
   EXTERNAL_IMAGE_TAG: $KILIFA_GITLAB_REGISTRY/$CI_PROJECT_PATH:latest
+  GIT_SUBMODULE_STRATEGY: none
 
 cache:
   key: docker
@@ -25,7 +26,39 @@ build:
   image: docker:latest
   services:
     - docker:dind
+  before_script:
+    - apk add --no-cache git openssh-client
+    - echo "=== Setting up SSH for submodules ==="
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY_BASE64" | base64 -d | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo "=== Configuring git to use SSH instead of HTTPS ==="
+    - git config --global url."git@gitlab.com:".insteadOf "https://gitlab.com/"
+    - echo "=== Checking .gitmodules before sync ==="
+    - cat .gitmodules
+    - echo "=== SSH setup complete ==="
+    - echo "=== Cloning submodules ==="
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
+    - echo "=== Listing all submodules ==="
+    - git submodule status --recursive
+    - echo ""
+    - echo "=== Checking submodule paths ==="
+    - echo "Contents of ./addons directory:"
+    - ls -la ./addons/ || echo "WARNING - addons directory not found"
+    - echo ""
+    - echo "Contents of ./addons/gainde:"
+    - ls -la ./addons/gainde || echo "WARNING - gainde submodule not found"
+    - echo ""
+    - echo "Tree structure of addons (first 3 levels):"
+    - find ./addons -maxdepth 3 -type d 2>/dev/null || echo "Could not list addons structure"
+    - echo ""
+    - echo "=== Starting Docker build ==="
     - |
       docker build \
         --build-arg OPENAI_API_KEY="$OPENAI_API_KEY" \
@@ -117,7 +150,7 @@ deploy:
     - echo "Deploying latest image to production environment"
   environment:
     name: production
-    url: kilifa.fr
+    url: https://kilifa.fr
   dependencies:
     - build
   only:
