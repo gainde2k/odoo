@@ -9,7 +9,6 @@ variables:
   DOCKER_DRIVER: overlay2
   IMAGE_NAME: $CI_REGISTRY_IMAGE
   LATEST_TAG: $CI_REGISTRY_IMAGE:latest
-  COMMIT_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
 
 cache:
   key: docker
@@ -58,15 +57,13 @@ build:
         --build-arg DEFAULT_COMPANY_EMAIL="$DEFAULT_COMPANY_EMAIL" \
         --build-arg DEFAULT_COMPANY_PHONE="$DEFAULT_COMPANY_PHONE" \
         -t $LATEST_TAG \
-        -t $COMMIT_TAG \
         .
     - docker push $LATEST_TAG
-    - docker push $COMMIT_TAG
   artifacts:
     reports:
       dotenv: build.env
   after_script:
-    - echo "IMAGE_TAG=$COMMIT_TAG" >> build.env
+    - echo "IMAGE_TAG=latest" >> build.env
   only:
     - main
     - develop
@@ -105,7 +102,7 @@ deploy:
   before_script:
     - apk add --no-cache curl
   script:
-    - echo "Deploying image $COMMIT_TAG to production"
+    - echo "Deploying latest image to production"
     - echo "Deployment would happen here - update with your actual deployment process"
   environment:
     name: production
@@ -114,7 +111,6 @@ deploy:
     - build
   only:
     - main
-  when: manual
 
 dockerfile_lint:
   stage: test
