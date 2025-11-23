@@ -16,6 +16,9 @@ mcp_odoo.txt
 workflows.txt
 autocod.txt
 helm
+.vscode/
+addons/enterprise/
+odoo_dev/
 .mcp.json
 remove_none_images.sh
 config/odoo.conf

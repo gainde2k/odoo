@@ -1,7 +1,7 @@
 [options]
 addons_path = /mnt/gainde
 data_dir = /var/lib/odoo
-admin_passwd = ${ODOO_PASSWORD:-kajande}
+admin_passwd = ${ADMIN_PASSWD:-kajande}
 logfile = False
 db_host = ${DB_HOST:-db}
 db_port = ${DB_PORT:-5432}

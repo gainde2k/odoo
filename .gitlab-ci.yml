@@ -70,7 +70,7 @@ build:
         --build-arg PGPASSWORD="$PGPASSWORD" \
         --build-arg ODOO_DB="$ODOO_DB" \
         --build-arg ODOO_USERNAME="$ODOO_USERNAME" \
-        --build-arg ODOO_PASSWORD="$ODOO_PASSWORD" \
+        --build-arg ADMIN_PASSWD="$ADMIN_PASSWD" \
         --build-arg PG_URI="$PG_URI" \
         --build-arg WAVE_CHECKOUT_API_KEY="$WAVE_CHECKOUT_API_KEY" \
         --build-arg WAVE_PAYOUT_API_KEY="$WAVE_PAYOUT_API_KEY" \
