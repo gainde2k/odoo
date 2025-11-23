@@ -1,5 +1,5 @@
 
 [submodule "addons/gainde"]
 	path = addons/gainde
-	url = git@gitlab.com:gainde2k/addons.git
+	url = ssh://git@gitlab.kilifa.fr:2222/gainde2k/gainde.git
 	branch = main
