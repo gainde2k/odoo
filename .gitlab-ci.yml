@@ -9,8 +9,9 @@ variables:
   DOCKER_DRIVER: overlay2
   IMAGE_NAME: $CI_REGISTRY_IMAGE
   LATEST_TAG: $CI_REGISTRY_IMAGE:latest
-  EXTERNAL_REGISTRY: $KILIFA_GITLAB_REGISTRY
-  EXTERNAL_IMAGE_TAG: $KILIFA_GITLAB_REGISTRY/$CI_PROJECT_PATH:latest
+  EXTERNAL_REGISTRY: $EXTERNAL_GITLAB_REGISTRY
+  EXTERNAL_PATH: gainde2k/helm/odoo
+  EXTERNAL_IMAGE_TAG: $EXTERNAL_GITLAB_REGISTRY/$EXTERNAL_PATH:latest
   GIT_SUBMODULE_STRATEGY: none
 
 cache:
@@ -138,21 +139,22 @@ deploy:
     - docker:dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker login -u $KILIFA_GITLAB_USER -p $KILIFA_GITLAB_TOKEN $KILIFA_GITLAB_REGISTRY
+    - docker login -u $EXTERNAL_GITLAB_ADMIN -p $EXTERNAL_GITLAB_TOKEN $EXTERNAL_GITLAB_REGISTRY
   script:
-    - echo "Pulling image from internal registry"
+    - echo "Pulling tested image from internal registry"
     - docker pull $LATEST_TAG
     - echo "Tagging image for external registry"
     - docker tag $LATEST_TAG $EXTERNAL_IMAGE_TAG
-    - echo "Pushing image to external registry:$KILIFA_GITLAB_REGISTRY"
+    - echo "Pushing image to external registry:$EXTERNAL_GITLAB_REGISTRY/$EXTERNAL_PATH"
     - docker push $EXTERNAL_IMAGE_TAG
-    - echo "Successfully pushed image to external registry"
+    - echo "Successfully pushed tested image to external registry"
     - echo "Deploying latest image to production environment"
   environment:
     name: production
     url: https://kilifa.fr
   dependencies:
     - build
+    - test
   only:
     - main
 
