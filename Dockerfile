@@ -140,4 +140,4 @@ RUN chmod +x /entrypoint.sh /setup_odoo_modules.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
 # Default command - now simplified since setup happens in entrypoint
-CMD ["odoo", "-c", "/etc/odoo/odoo.conf"]
+CMD ["odoo", "-c", "/etc/odoo/odoo.conf", "--dev=all"]
