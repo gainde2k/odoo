@@ -25,6 +25,7 @@ CORE_MODULES=(
 CUSTOM_MODULES=(
     "gainde"
     "bf_portal_purchase_request"
+    "purchase_request_gainde"
 )
 
 echo "🚀 Starting Odoo module setup..."
@@ -191,6 +192,8 @@ WHERE name IN ('contacts',
                 'account',
                 'mail',
                 'gainde'
+                'bf_portal_purchase_request'
+                'purchase_request_gainde'
             )
 ORDER BY name;
 EOF
