@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/gainde2k/odoo:latest
+FROM gitlab.kilifa.fr:5050/gainde2k/odoo:latest
 # Switch to root to install dependencies
 USER root
 
