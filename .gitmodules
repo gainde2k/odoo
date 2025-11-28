@@ -4,4 +4,4 @@
 	url = https://github.com/gainde2k/gainde.git
 [submodule "automation"]
 	path = automation
-	url = ./automation
+	url = https://github.com/gainde2k/automation.git
