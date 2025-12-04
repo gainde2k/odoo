@@ -1,7 +1,7 @@
 
 [submodule "addons/gainde"]
 	path = addons/gainde
-	url = https://github.com/gainde2k/gainde.git
+	url = ssh://git@gitlab.kilifa.fr:2222/gainde2k/gainde.git
 [submodule "automation"]
 	path = automation
-	url = https://github.com/gainde2k/automation.git
+	url = ssh://git@gitlab.kilifa.fr:2222/gainde2k/automation.git
