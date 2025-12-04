@@ -1,10 +1,11 @@
 stages:
-  - .pre
   - build
   - test
   - deploy
 
 variables:
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
   DOCKER_DRIVER: overlay2
   IMAGE_NAME: $CI_REGISTRY_IMAGE
   LATEST_TAG: $CI_REGISTRY_IMAGE:latest
@@ -12,7 +13,6 @@ variables:
   EXTERNAL_PATH: gainde2k/helm/odoo
   EXTERNAL_IMAGE_TAG: $EXTERNAL_GITLAB_REGISTRY/$EXTERNAL_PATH:latest
   GIT_SUBMODULE_STRATEGY: none
-  CI_SERVER_URL: "https://gitlab.kilifa.fr"
 
 cache:
   key: docker
@@ -22,97 +22,43 @@ cache:
 before_script:
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
-# ------------------------------
-# DEBUG STAGE
-# ------------------------------
-debug_ssh:
-  stage: .pre
-  tags:
-    - dev
-  image: alpine:latest
-  before_script:
-    - apk add --no-cache git openssh-client curl
-  script:
-    - echo "=== Environment Variables Check ==="
-    - env | grep -i ssh || echo "No SSH variables found"
-    - env | grep -i ci | head -5
-    - echo "SSH_PRIVATE_KEY_BASE64 variable exists - $(if [ -n \"$SSH_PRIVATE_KEY_BASE64\" ]; then echo \"YES (length - ${#SSH_PRIVATE_KEY_BASE64})\"; else echo \"NO\"; fi)"
-    - echo "=== Setting up SSH ==="
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY_BASE64" | base64 -d | tr -d '\r' | ssh-add -
-    - echo "Loaded SSH keys:"
-    - ssh-add -l || echo "No keys loaded or error listing keys"
-    - echo "=== SSH Configuration ==="
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan -p 2222 gitlab.kilifa.fr >> ~/.ssh/known_hosts
-    - ssh-keyscan -p 22 gitlab.kilifa.fr >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - |
-      cat > ~/.ssh/config << 'EOF'
-      Host gitlab.kilifa.fr
-          Port 2222
-          User git
-          StrictHostKeyChecking yes
-      EOF
-    - chmod 600 ~/.ssh/config
-    - echo "=== Testing SSH Connection ==="
-    - ssh -T -p 2222 -o ConnectTimeout=10 git@gitlab.kilifa.fr && echo "SSH connection successful" || echo "SSH connection failed - but this might be normal for GitLab"
-    - echo "=== Testing Git Operations ==="
-    - git clone https://gitlab.kilifa.fr/gainde2k/odoo.git /tmp/test-repo
-    - cd /tmp/test-repo
-    - git config --global url."ssh://git@gitlab.kilifa.fr:2222/".insteadOf "https://gitlab.kilifa.fr/"
-    - echo "Testing submodule update..."
-    - git submodule update --init --recursive
-    - echo "Submodule test completed with exit code - $?"
-    - echo "=== Directory Structure ==="
-    - ls -la /tmp/test-repo/addons/ || echo "Could not list addons directory"
-    - echo "=== Git Submodule Status ==="
-    - git submodule status --recursive || echo "Could not get submodule status"
-  only:
-    - main
-    - develop
-  allow_failure: true
-
-# ------------------------------
-# BUILD STAGE
-# ------------------------------
 build:
   stage: build
-  tags:
-    - dev
   image: docker:latest
+  services:
+    - docker:dind
   before_script:
     - apk add --no-cache git openssh-client
+    - echo "=== Setting up SSH for submodules ==="
     - eval $(ssh-agent -s)
-    - echo "Loading SSH key (length-${#SSH_PRIVATE_KEY_BASE64})"
     - echo "$SSH_PRIVATE_KEY_BASE64" | base64 -d | tr -d '\r' | ssh-add -
-    - echo "Loaded SSH keys:"
-    - ssh-add -l
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - ssh-keyscan -p 2222 gitlab.kilifa.fr >> ~/.ssh/known_hosts
-    - ssh-keyscan -p 22 gitlab.kilifa.fr >> ~/.ssh/known_hosts
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - |
-      cat > ~/.ssh/config << 'EOF'
-      Host gitlab.kilifa.fr
-          Port 2222
-          User git
-          StrictHostKeyChecking yes
-      EOF
-    - chmod 600 ~/.ssh/config
-    - git config --global url."ssh://git@gitlab.kilifa.fr:2222/".insteadOf "https://gitlab.kilifa.fr/"
+    - echo "=== Configuring git to use SSH instead of HTTPS ==="
+    - git config --global url."git@gitlab.com:".insteadOf "https://gitlab.com/"
+    - echo "=== Checking .gitmodules before sync ==="
+    - cat .gitmodules
+    - echo "=== SSH setup complete ==="
+    - echo "=== Cloning submodules ==="
     - git submodule sync --recursive
     - git submodule update --init --recursive
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - echo "=== Listing all submodules ==="
     - git submodule status --recursive
-    - echo "=== Checking addons directory structure ==="
-    - ls -la ./addons || echo "WARNING - addons directory not found"
+    - echo ""
+    - echo "=== Checking submodule paths ==="
+    - echo "Contents of ./addons directory:"
+    - ls -la ./addons/ || echo "WARNING - addons directory not found"
+    - echo ""
+    - echo "Contents of ./addons/gainde:"
     - ls -la ./addons/gainde || echo "WARNING - gainde submodule not found"
+    - echo ""
+    - echo "Tree structure of addons (first 3 levels):"
     - find ./addons -maxdepth 3 -type d 2>/dev/null || echo "Could not list addons structure"
+    - echo ""
     - echo "=== Starting Docker build ==="
     - |
       docker build \
@@ -146,24 +92,21 @@ build:
         --build-arg DEFAULT_ADMIN_PHONE="$DEFAULT_ADMIN_PHONE" \
         --build-arg DEFAULT_COMPANY_EMAIL="$DEFAULT_COMPANY_EMAIL" \
         --build-arg DEFAULT_COMPANY_PHONE="$DEFAULT_COMPANY_PHONE" \
-        -t $LATEST_TAG .
+        -t $LATEST_TAG \
+        .
     - docker push $LATEST_TAG
-    - echo "IMAGE_TAG=latest" >> build.env
   artifacts:
     reports:
       dotenv: build.env
+  after_script:
+    - echo "IMAGE_TAG=latest" >> build.env
   only:
     - main
     - develop
     - tags
 
-# ------------------------------
-# TEST STAGE
-# ------------------------------
 test:
   stage: test
-  tags:
-    - dev
   image: $LATEST_TAG
   services:
     - postgres:13
@@ -189,14 +132,11 @@ test:
     - main
     - develop
 
-# ------------------------------
-# DEPLOY STAGE
-# ------------------------------
 deploy:
   stage: deploy
-  tags:
-    - dev
   image: docker:latest
+  services:
+    - docker:dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker login -u $EXTERNAL_GITLAB_ADMIN -p $EXTERNAL_GITLAB_TOKEN $EXTERNAL_GITLAB_REGISTRY
@@ -205,9 +145,10 @@ deploy:
     - docker pull $LATEST_TAG
     - echo "Tagging image for external registry"
     - docker tag $LATEST_TAG $EXTERNAL_IMAGE_TAG
-    - echo "Pushing image to external registry"
+    - echo "Pushing image to external registry:$EXTERNAL_GITLAB_REGISTRY/$EXTERNAL_PATH"
     - docker push $EXTERNAL_IMAGE_TAG
-    - echo "Deploy finished successfully"
+    - echo "Successfully pushed tested image to external registry"
+    - echo "Deploying latest image to production environment"
   environment:
     name: production
     url: https://kilifa.fr
@@ -217,9 +158,6 @@ deploy:
   only:
     - main
 
-# ------------------------------
-# DOCKERFILE LINTING
-# ------------------------------
 dockerfile_lint:
   stage: test
   image: hadolint/hadolint:latest
@@ -227,9 +165,7 @@ dockerfile_lint:
     - hadolint Dockerfile
   allow_failure: true
 
-# ------------------------------
-# SECURITY TEMPLATES
-# ------------------------------
+# Include GitLab security templates at the top level
 include:
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Container-Scanning.gitlab-ci.yml
